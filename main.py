@@ -2,6 +2,7 @@ from model import *
 from data_pipeline import get_loaders
 from train import train
 from argparse import Namespace
+from utils import set_visible_gpus
 
 args = {
     'device' : 'cuda' if torch.cuda.is_available() else 'cpu',
@@ -20,6 +21,9 @@ args = {
 }
 
 args = Namespace(**args)
+
+if args.visible_gpus:
+    set_visible_gpus(args)
 
 g = SRGAN_Generator().to(args.device)
 d = SRGAN_Discriminator(256)
