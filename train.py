@@ -1,6 +1,6 @@
 import torch
 from tqdm.auto import tqdm
-from utils import plot_image_comparisons
+from utils import plot_image_comparisons, save_model
 import random
 
 def train(d, g, trainloader, args):
@@ -58,39 +58,10 @@ def train(d, g, trainloader, args):
                 img_idx = random.randint(0, blurred.shape[0] - 1)
                 plot_image_comparisons(blurred[img_idx], generated_imgs[img_idx], original[img_idx])
 
+            if global_step % args.save_every == 0:
+                save_model(model, global_step, args)
+        
 
-
-
-
-
-
-from model import *
-from data_pipeline import get_loaders
-from argparse import Namespace
-
-args = {
-    'device' : 'cuda' if torch.cuda.is_available() else 'cpu',
-    'd_lr' : 1e-5,
-    'g_lr' : 1e-4,
-    'num_epochs' : 2,
-    'num_resblocks' : 16,
-    'overwrite_cache' : False,
-    'cache_dir' : 'data_cache/',
-    'batch_size' : 32,
-    'print_every' : 100,
-
-    
-}
-
-args = Namespace(**args)
-
-d = SRGAN_Discriminator(256).to(args.device)
-g = SRGAN_Generator(num_resblocks=2).to(args.device)
-train_loader, test_loader, val_loader = get_loaders(args)
-train(d, g, train_loader, args)
-
-
-            
 
 
 
