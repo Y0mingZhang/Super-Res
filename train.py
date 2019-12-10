@@ -1,6 +1,7 @@
 import torch
 from tqdm.auto import tqdm
-
+from utils import 
+import random
 
 def train(d, g, trainloader, args):
     
@@ -54,6 +55,10 @@ def train(d, g, trainloader, args):
             g.zero_grad()
 
             print('G loss: {}, D loss: {}'.format(cumulative_loss, d_loss))
+            plot_image_comparisons(orig)
+            img_idx = random.randint(0, arg.batch_size - 1)
+            plot_image_comparisons(blurred[img_idx], generated_imgs[img_idx], original[img_idx])
+
 
 
 
