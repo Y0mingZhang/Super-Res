@@ -65,7 +65,7 @@ def train(d, g, trainloader, args):
             if global_step % args.print_every == 0:
                 print('G loss: {}, D loss: {}'.format(g_cumulative_error.item(), d_error.item()))
                 img_idx = random.randint(0, blurred.shape[0] - 1)
-                plot_image_comparisons(blurred[img_idx], generated_imgs[img_idx], original[img_idx])
+                plot_image_comparisons(blurred[img_idx], fake_data[img_idx], original[img_idx])
 
             if global_step % args.save_every == 0:
                 save_model(d, g, global_step, args)
