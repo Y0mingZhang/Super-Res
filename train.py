@@ -45,11 +45,13 @@ def train(d, g, trainloader, args):
             d_labels = torch.cat((real_labels, fake_labels))
 
             d_output = d(d_input).flatten()
-            d_loss = gan_criterion(d_output, d_input)
+            d_loss = gan_criterion(d_output, d_labels)
             d_loss.backward()
             
             d_optimizer.step()
             g_optimizer.step()
+            d.zero_grad()
+            g.zero_grad()
 
 
 
@@ -67,7 +69,8 @@ args = {
     'num_epochs' : 2,
     'num_resblocks' : 16,
     'overwrite_cache' : False,
-    'cache_dir' : 'data_cache/'
+    'cache_dir' : 'data_cache/',
+    'batch_size' : 64
     
 }
 
