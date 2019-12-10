@@ -1,3 +1,4 @@
+
 from model import *
 from data_pipeline import get_loaders
 from train import train
@@ -6,15 +7,15 @@ from utils import set_visible_gpus
 
 args = {
     'device' : 'cuda' if torch.cuda.is_available() else 'cpu',
-    'd_lr' : 1e-5,
+    'd_lr' : 1e-4,
     'g_lr' : 1e-4,
-    'num_epochs' : 5,
+    'num_epochs' : 15,
     'num_resblocks' : 16,
-    'overwrite_cache' : False,
+    'overwrite_cache' : True,
     'cache_dir' : 'data_cache/',
-    'batch_size' : 48,
-    'print_every' : 100,
-    'save_every' : 2000,
+    'batch_size' : 64,
+    'print_every' : 4,
+    'save_every' : 23,
     'visible_gpus' : [1,0,4,5],
     'model_dir' : 'model_cache/'
     
@@ -22,17 +23,17 @@ args = {
 
 args = Namespace(**args)
 
-if args.visible_gpus:
-    set_visible_gpus(args)
-
 if torch.cuda.device_count() > 1:
     args.n_gpus = torch.cuda.device_count()
-
+else:
+    args.n_gpus = 0
+''
 g = SRGAN_Generator().to(args.device)
 d = SRGAN_Discriminator(256).to(args.device)
 if args.n_gpus > 1:
     g = nn.DataParallel(g)
     d = nn.DataParallel(d)
+
 
 train_loader, test_loader, val_loader = get_loaders(args)
 train(d, g, train_loader, args)

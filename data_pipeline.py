@@ -34,29 +34,41 @@ def get_loaders(args):
         cache_dir = args.cache_dir
         os.mkdir(cache_dir)
 
-        BLURRED_SIZE = 64
-        OG_SIZE = 256
 
         ToTensor = transforms.ToTensor()
         Squeeze = transforms.Lambda(lambda x: x.squeeze())
+
+        """
         blur_transform = transforms.Compose([
                         transforms.CenterCrop(OG_SIZE),
                         transforms.Resize((BLURRED_SIZE,BLURRED_SIZE)),
                         ToTensor,
                         Squeeze
         ])
+        """
 
         og_transform = transforms.Compose([
-                        transforms.CenterCrop(OG_SIZE),
+                        transforms.CenterCrop(256),
                         ToTensor,
                         Squeeze
         ])
+
+        area_interpol = transforms.Lambda(lambda x: torch.nn.functional.interpolate(x, scale_factor=.25, mode='area'))
+        Unsqueeze = transforms.Lambda(lambda x: x.unsqueeze(0))
+        interpol = transforms.Compose([
+                transforms.CenterCrop(256),
+                ToTensor,
+                Unsqueeze,
+                area_interpol,
+                Squeeze,
+        ])
+
         # transforms.Normalize([0.2859], [0.3530]) # Normalize to zero mean and unit variance
 
-        data_train = list(zip(torchvision.datasets.VOCSegmentation('.', download=True, image_set='train', transform=blur_transform, target_transform=blur_transform), 
+        data_train = list(zip(torchvision.datasets.VOCSegmentation('.', download=True, image_set='train', transform=interpol, target_transform=interpol), 
                         torchvision.datasets.VOCSegmentation('.', download=True, image_set='train', transform=og_transform, target_transform=og_transform)))
 
-        data_test = list(zip(torchvision.datasets.VOCSegmentation('.', download=True, image_set='val', transform=blur_transform, target_transform=blur_transform), 
+        data_test = list(zip(torchvision.datasets.VOCSegmentation('.', download=True, image_set='val', transform=interpol, target_transform=interpol), 
                         torchvision.datasets.VOCSegmentation('.', download=True, image_set='val', transform=og_transform, target_transform=og_transform)))
 
         torch.save(data_train, os.path.join(cache_dir, 'train_dataset.bin'))
