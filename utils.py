@@ -1,6 +1,7 @@
 import os
 import matplotlib.pyplot as plt
 import torch
+import numpy as np
 
 def set_visible_gpus(args):
     import os
@@ -8,18 +9,18 @@ def set_visible_gpus(args):
     os.environ["CUDA_VISIBLE_DEVICES"]=",".join([str(i) for i in args.visible_gpus])  # specify which GPU(s) to be used
     
 
-def plot_image_comparisons(blurred, generated, original):
-    generated = generated.detach().cpu().numpy()
-    blurred = blurred.detach().cpu().numpy()
-    original = original.detach().cpu().numpy()
+def tensor_to_img(data):
+    return np.transpose(data.detach().cpu().numpy(), (1, 2, 0))
 
+def plot_image_comparisons(blurred, generated, original):
+    
     _, axarr = plt.subplots(1,3)
-    axarr[0].imshow(blurred)
-    axarr[0].set_title('Original')
-    axarr[1].imshow(generated)
+    axarr[0].imshow(tensor_to_img(blurred))
+    axarr[0].set_title('Blurred')
+    axarr[1].imshow(tensor_to_img(generated))
     axarr[1].set_title('Generated')
     axarr[2].imshow(original)
-    axarr[2].set_title('Generated')
+    axarr[2].set_title('Original')
 
     plt.show()
 
