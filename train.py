@@ -37,6 +37,8 @@ def train(d, g, trainloader, args):
 
             # Add up losses
             cumulative_loss = 1e-3 * d_loss + pix_loss
+            if args.n_gpus > 1:
+                cumulative_loss = cumulative_loss.mean()
             cumulative_loss.backward()
             d.zero_grad()
             
@@ -47,6 +49,8 @@ def train(d, g, trainloader, args):
 
             d_output = d(d_input).flatten()
             d_loss = gan_criterion(d_output, d_labels)
+            if args.n_gpus > 1:
+                d_loss = d_loss.mean()
             d_loss.backward()
             
             d_optimizer.step()

@@ -25,8 +25,14 @@ args = Namespace(**args)
 if args.visible_gpus:
     set_visible_gpus(args)
 
+if torch.cuda.device_count() > 1:
+    args.n_gpus = torch.cuda.device_count()
+
 g = SRGAN_Generator().to(args.device)
-d = SRGAN_Discriminator(256)
+d = SRGAN_Discriminator(256).to(args.device)
+if args.n_gpus > 1:
+    g = nn.DataParallel(g)
+    d = nn.DataParallel(d)
 
 train_loader, test_loader, val_loader = get_loaders(args)
-train(d, g, train_loader, test_loader, args)
+train(d, g, train_loader, args)
