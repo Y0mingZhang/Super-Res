@@ -53,6 +53,8 @@ def train(d, g, trainloader, args):
             d.zero_grad()
             g.zero_grad()
 
+            print('G loss: {}, D loss: {}'.format(cumulative_loss, d_loss))
+
 
 
 
@@ -70,7 +72,7 @@ args = {
     'num_resblocks' : 16,
     'overwrite_cache' : False,
     'cache_dir' : 'data_cache/',
-    'batch_size' : 64
+    'batch_size' : 32
     
 }
 
