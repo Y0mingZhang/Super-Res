@@ -1,6 +1,6 @@
 import torch
 from tqdm.auto import tqdm
-from utils import 
+from utils import plot_image_comparisons
 import random
 
 def train(d, g, trainloader, args):
@@ -55,8 +55,7 @@ def train(d, g, trainloader, args):
             g.zero_grad()
 
             print('G loss: {}, D loss: {}'.format(cumulative_loss, d_loss))
-            plot_image_comparisons(orig)
-            img_idx = random.randint(0, arg.batch_size - 1)
+            img_idx = random.randint(0, args.batch_size - 1)
             plot_image_comparisons(blurred[img_idx], generated_imgs[img_idx], original[img_idx])
 
 
@@ -71,8 +70,8 @@ from argparse import Namespace
 
 args = {
     'device' : 'cuda' if torch.cuda.is_available() else 'cpu',
-    'd_lr' : 1e-3,
-    'g_lr' : 1e-3,
+    'd_lr' : 1e-5,
+    'g_lr' : 1e-4,
     'num_epochs' : 2,
     'num_resblocks' : 16,
     'overwrite_cache' : False,
