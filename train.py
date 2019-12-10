@@ -13,7 +13,12 @@ def train(d, g, trainloader, args):
     gan_criterion = nn.BCEWithLogitsLoss()
     pix_criterion = nn.MSELoss()
     global_step = 0
+    global_epoch = 0
     for epoch in tqdm(range(args.num_epochs)):
+        if global_epoch == 10:
+            args.d_lr /= 10
+            args.g_lr /= 10
+
         for (blurred,_), (original,_) in trainloader:
             bs = blurred.shape[0]
             blurred = blurred.to(args.device)
@@ -68,6 +73,7 @@ def train(d, g, trainloader, args):
             
 
             global_step += 1
+        global_epoch += 1
 
 
 
