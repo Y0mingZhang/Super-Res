@@ -8,7 +8,7 @@ def train(d, g, trainloader, args):
     g_optimizer = torch.optim.Adam(g.parameters(), args.g_lr)
 
 
-    gan_criterion = nn.BCEWithLogitsLoss
+    gan_criterion = nn.BCEWithLogitsLoss()
     pix_criterion = nn.MSELoss()
 
     for epoch in tqdm(range(args.num_epochs)):
@@ -56,7 +56,7 @@ def train(d, g, trainloader, args):
 
 
 from model import *
-from data_pipeline import train_loader
+from data_pipeline import get_loaders
 from argparse import Namespace
 
 args = {
@@ -65,6 +65,8 @@ args = {
     'g_lr' : 1e-3,
     'num_epochs' : 2,
     'num_resblocks' : 16,
+    'overwrite_cache' : True,
+    'cache_dir' : 'data_cache/'
     
 }
 
@@ -72,7 +74,7 @@ args = Namespace(**args)
 
 d = SRGAN_Discriminator(256)
 g = SRGAN_Generator(num_resblocks=2)
-
+train_loader, test_loader, val_loader = get_loaders(args)
 train(d, g, train_loader, args)
 
 
