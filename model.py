@@ -90,7 +90,7 @@ class SRGAN_Discriminator(nn.ModuleList):
             convblock(256, 512, 1),
             convblock(512, 512, 2)
         )
-        self.flat_dim = (input_dim//16)**2
+        self.flat_dim = (input_dim//16)**2 * 512
         self.net_out = nn.Sequential(
             nn.Linear(self.flat_dim, 1024),
             nn.LeakyReLU(),
@@ -99,5 +99,5 @@ class SRGAN_Discriminator(nn.ModuleList):
     
     def forward(self, x):
         x = self.net(x)
-        x = x.view(-1, 512, self.flat_dim)
+        x = x.view(-1, self.flat_dim)
         return self.net_out(x)
