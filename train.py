@@ -19,53 +19,56 @@ def train(d, g, trainloader, args):
             blurred = blurred.to(args.device)
             original = original.to(args.device)
             
-            generated_imgs = g(blurred)
-            generated_imgs_for_d_training = generated_imgs.detach()
 
-            preds = d(generated_imgs).flatten()
-            
-
-            # Learn G gradients
-            # Fake labels
-            fake_labels = torch.ones(bs).to(args.device)
-            d_loss = gan_criterion(preds, fake_labels)
-
-
-            # Clean up discriminator grads
-
-            # Do MSELoss
-            pix_loss = pix_criterion(generated_imgs, original)
-
-            # Add up losses
-            cumulative_loss = 1e-3 * d_loss + pix_loss
-            if args.n_gpus > 1:
-                cumulative_loss = cumulative_loss.mean()
-            cumulative_loss.backward()
+            label_fast = torch.empty(bs).to(args.device)
+            """ Update D Network """
             d.zero_grad()
-            
-            real_labels = torch.ones(bs).to(args.device)
-            fake_labels = torch.zeros(bs).to(args.device)
-            d_input = torch.cat((original, generated_imgs_for_d_training))
-            d_labels = torch.cat((real_labels, fake_labels))
-
-            d_output = d(d_input).flatten()
-            d_loss = gan_criterion(d_output, d_labels)
+            output = d(original)
+            real_label = label_fast.fill_(1)
+            d_error_real = gan_criterion(output, real_label)
             if args.n_gpus > 1:
-                d_loss = d_loss.mean()
-            d_loss.backward()
+                d_error_real = d_error_real.mean()
             
+            d_error_real.backward()
+
+            fake_data = g(blurred)
+            output = d(fake_data.detach())
+            fake_label = label_fast.fill_(0)
+            d_error_fake = gan_criterion(output, fake_label)
+            if args.n_gpus > 1:
+                d_error_fake = d_error_fake.mean()
+            d_error_fake.backward()
+
+            d_error = d_error_real + d_error_fake
             d_optimizer.step()
-            g_optimizer.step()
-            d.zero_grad()
+
+            """ Update G Network """
             g.zero_grad()
+            real_label = label_fast.fill_(1)
+            output = d(fake_data)
+
+            g_error = gan_criterion(output, real_label) * 1e-3
+            pix_error = pix_criterion(fake_data, original)
+            if args.n_gpu > 1:
+                g_error = g_error.mean()
+                pix_error = pix_error.mean()
+            g_error.backward()
+            pix_error.backward()
+
+            g_cumulative_error = g_error + pix_error
+            g_optimizer.step()
+            
             if global_step % args.print_every == 0:
-                print('G loss: {}, D loss: {}'.format(cumulative_loss, d_loss))
+                print('G loss: {}, D loss: {}'.format(g_cumulative_error.item(), d_error.item()))
                 img_idx = random.randint(0, blurred.shape[0] - 1)
                 plot_image_comparisons(blurred[img_idx], generated_imgs[img_idx], original[img_idx])
 
             if global_step % args.save_every == 0:
                 save_model(d, g, global_step, args)
-        
+            
+
+            global_step += 1
+
 
 
 
