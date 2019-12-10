@@ -5,7 +5,7 @@ import torch
 def set_visible_gpus(args):
     import os
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-    os.environ["CUDA_VISIBLE_DEVICES"]=",".join(args.visible_gpus)  # specify which GPU(s) to be used
+    os.environ["CUDA_VISIBLE_DEVICES"]=",".join([str(i) for i in args.visible_gpus])  # specify which GPU(s) to be used
     
 
 def plot_image_comparisons(blurred, generated, original):

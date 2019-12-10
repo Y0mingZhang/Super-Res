@@ -2,6 +2,7 @@ import torch
 from tqdm.auto import tqdm
 from utils import plot_image_comparisons, save_model
 import random
+import torch.nn as nn
 
 def train(d, g, trainloader, args):
     
