@@ -64,7 +64,7 @@ def train(d, g, trainloader, args):
                 plot_image_comparisons(blurred[img_idx], generated_imgs[img_idx], original[img_idx])
 
             if global_step % args.save_every == 0:
-                save_model(model, global_step, args)
+                save_model(d, g, global_step, args)
         
 
 
