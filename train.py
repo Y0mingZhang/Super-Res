@@ -23,7 +23,7 @@ def train(d, g, trainloader, args):
             label_fast = torch.empty(bs).to(args.device)
             """ Update D Network """
             d.zero_grad()
-            output = d(original)
+            output = d(original).squeeze()
             real_label = label_fast.fill_(1)
             d_error_real = gan_criterion(output, real_label)
             if args.n_gpus > 1:
@@ -32,7 +32,7 @@ def train(d, g, trainloader, args):
             d_error_real.backward()
 
             fake_data = g(blurred)
-            output = d(fake_data.detach())
+            output = d(fake_data.detach()).squeeze()
             fake_label = label_fast.fill_(0)
             d_error_fake = gan_criterion(output, fake_label)
             if args.n_gpus > 1:
@@ -45,7 +45,7 @@ def train(d, g, trainloader, args):
             """ Update G Network """
             g.zero_grad()
             real_label = label_fast.fill_(1)
-            output = d(fake_data)
+            output = d(fake_data).squeeze()
 
             g_error = gan_criterion(output, real_label) * 1e-3
             pix_error = pix_criterion(fake_data, original)
