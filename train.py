@@ -11,7 +11,7 @@ def train(d, g, trainloader, args):
 
     gan_criterion = nn.BCEWithLogitsLoss()
     pix_criterion = nn.MSELoss()
-
+    global_step = 0
     for epoch in tqdm(range(args.num_epochs)):
         for (blurred,_), (original,_) in trainloader:
             bs = blurred.shape[0]
@@ -36,7 +36,7 @@ def train(d, g, trainloader, args):
             pix_loss = pix_criterion(generated_imgs, original)
 
             # Add up losses
-            cumulative_loss = d_loss + 1e-3 * pix_loss
+            cumulative_loss = 1e-3 * d_loss + pix_loss
             cumulative_loss.backward()
             d.zero_grad()
             
@@ -53,10 +53,10 @@ def train(d, g, trainloader, args):
             g_optimizer.step()
             d.zero_grad()
             g.zero_grad()
-
-            print('G loss: {}, D loss: {}'.format(cumulative_loss, d_loss))
-            img_idx = random.randint(0, args.batch_size - 1)
-            plot_image_comparisons(blurred[img_idx], generated_imgs[img_idx], original[img_idx])
+            if global_step % args.print_every == 0:
+                print('G loss: {}, D loss: {}'.format(cumulative_loss, d_loss))
+                img_idx = random.randint(0, blurred.shape[0] - 1)
+                plot_image_comparisons(blurred[img_idx], generated_imgs[img_idx], original[img_idx])
 
 
 
@@ -76,7 +76,9 @@ args = {
     'num_resblocks' : 16,
     'overwrite_cache' : False,
     'cache_dir' : 'data_cache/',
-    'batch_size' : 32
+    'batch_size' : 32,
+    'print_every' : 100,
+
     
 }
 
