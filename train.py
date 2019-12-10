@@ -57,10 +57,9 @@ def train(d, g, trainloader, args):
             if args.n_gpus > 1:
                 g_error = g_error.mean()
                 pix_error = pix_error.mean()
-            g_error.backward()
-            pix_error.backward()
-
             g_cumulative_error = g_error + pix_error
+            g_cumulative_error.backward()
+
             g_optimizer.step()
             
             if global_step % args.print_every == 0:
