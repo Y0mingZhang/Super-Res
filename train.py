@@ -20,7 +20,7 @@ def train(d, g, trainloader, args):
             generated_imgs = g(blurred)
             generated_imgs_for_d_training = generated_imgs.detach()
 
-            preds = d(generated_imgs)
+            preds = d(generated_imgs).flatten()
             
 
             # Learn G gradients
@@ -43,7 +43,7 @@ def train(d, g, trainloader, args):
             d_input = torch.cat((original, generated_imgs_for_d_training))
             d_labels = torch.cat((real_labels, fake_labels))
 
-            d_output = d(d_input)
+            d_output = d(d_input).flatten()
             d_loss = gan_criterion(d_output, d_input)
             d_loss.backward()
             
@@ -72,8 +72,8 @@ args = {
 
 args = Namespace(**args)
 
-d = SRGAN_Discriminator(256)
-g = SRGAN_Generator(num_resblocks=2)
+d = SRGAN_Discriminator(256).to(args.device)
+g = SRGAN_Generator(num_resblocks=2).to(args.device)
 train_loader, test_loader, val_loader = get_loaders(args)
 train(d, g, train_loader, args)
 
