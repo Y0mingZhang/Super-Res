@@ -19,7 +19,7 @@ def plot_image_comparisons(blurred, generated, original):
     axarr[0].set_title('Blurred')
     axarr[1].imshow(tensor_to_img(generated))
     axarr[1].set_title('Generated')
-    axarr[2].imshow(original)
+    axarr[2].imshow(tensor_to_img(original))
     axarr[2].set_title('Original')
 
     plt.show()

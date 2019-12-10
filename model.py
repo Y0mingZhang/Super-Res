@@ -59,7 +59,6 @@ class SRGAN_Generator(nn.Module):
         
         for _shufblock in self.shufblocks:
             x = _shufblock(x)
-            print(x.shape)
 
         return self.conv_2(x)
 
@@ -101,3 +100,4 @@ class SRGAN_Discriminator(nn.ModuleList):
         x = self.net(x)
         x = x.view(-1, self.flat_dim)
         return self.net_out(x)
+
