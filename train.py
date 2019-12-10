@@ -8,7 +8,7 @@ def train(d, g, trainloader, args):
     g_optimizer = torch.optim.Adam(g.parameters(), args.g_lr)
 
 
-    gan_criterion = nn.BCELoss()
+    gan_criterion = nn.BCEWithLogitsLoss
     pix_criterion = nn.MSELoss()
 
     for epoch in tqdm(range(args.num_epochs)):
@@ -25,7 +25,7 @@ def train(d, g, trainloader, args):
 
             # Learn G gradients
             # Fake labels
-            fake_labels = torch.ones(bs, dtype=torch.long).to(args.device)
+            fake_labels = torch.ones(bs).to(args.device)
             d_loss = gan_criterion(preds, fake_labels)
 
 
@@ -38,9 +38,9 @@ def train(d, g, trainloader, args):
             pix_loss = pix_criterion(generated_imgs, original)
             pix_loss.backward()
             
-            real_labels = torch.ones(bs, dtype=torch.long).to(args.device)
-            fake_labels = torch.zeros(bs, dtype=torch.long).to(args.device)
-            d_input = torch.cat((origial, generated_imgs_for_d_training))
+            real_labels = torch.ones(bs).to(args.device)
+            fake_labels = torch.zeros(bs).to(args.device)
+            d_input = torch.cat((original, generated_imgs_for_d_training))
             d_labels = torch.cat((real_labels, fake_labels))
 
             d_output = d(d_input)
@@ -49,6 +49,7 @@ def train(d, g, trainloader, args):
             
             d_optimizer.step()
             g_optimizer.step()
+
 
 
 
