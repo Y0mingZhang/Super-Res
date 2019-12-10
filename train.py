@@ -54,7 +54,7 @@ def train(d, g, trainloader, args):
 
             g_error = gan_criterion(output, real_label) * 1e-3
             pix_error = pix_criterion(fake_data, original)
-            if args.n_gpu > 1:
+            if args.n_gpus > 1:
                 g_error = g_error.mean()
                 pix_error = pix_error.mean()
             g_error.backward()
