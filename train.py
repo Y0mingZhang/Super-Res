@@ -30,13 +30,14 @@ def train(d, g, trainloader, args):
 
 
             # Clean up discriminator grads
-            d_loss.backward()
-            d.zero_grad()
-
 
             # Do MSELoss
             pix_loss = pix_criterion(generated_imgs, original)
-            pix_loss.backward()
+
+            # Add up losses
+            cumulative_loss = d_loss + 1e-3 * pix_loss
+            cumulative_loss.backward()
+            d.zero_grad()
             
             real_labels = torch.ones(bs).to(args.device)
             fake_labels = torch.zeros(bs).to(args.device)
@@ -65,7 +66,7 @@ args = {
     'g_lr' : 1e-3,
     'num_epochs' : 2,
     'num_resblocks' : 16,
-    'overwrite_cache' : True,
+    'overwrite_cache' : False,
     'cache_dir' : 'data_cache/'
     
 }
