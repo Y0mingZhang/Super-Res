@@ -23,17 +23,20 @@ args = {
 
 args = Namespace(**args)
 
-if torch.cuda.device_count() > 1:
-    args.n_gpus = torch.cuda.device_count()
-else:
-    args.n_gpus = 0
-''
-g = SRGAN_Generator().to(args.device)
-d = SRGAN_Discriminator(256).to(args.device)
-if args.n_gpus > 1:
-    g = nn.DataParallel(g)
-    d = nn.DataParallel(d)
+# if torch.cuda.device_count() > 1:
+#     args.n_gpus = torch.cuda.device_count()
+# else:
+#     args.n_gpus = 0
+# ''
+# g = SRGAN_Generator().to(args.device)
+# d = SRGAN_Discriminator(256).to(args.device)
+# if args.n_gpus > 1:
+#     g = nn.DataParallel(g)
+#     d = nn.DataParallel(d)
 
 
 train_loader, test_loader, val_loader = get_loaders(args)
-train(d, g, train_loader, args)
+
+train_loader.datasets[0][0][0]
+
+# train(d, g, train_loader, args)

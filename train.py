@@ -19,7 +19,7 @@ def train(d, g, trainloader, args):
             args.d_lr /= 10
             args.g_lr /= 10
 
-        for (blurred,_), (original,_) in trainloader:
+        for blurred, original in trainloader:
             bs = blurred.shape[0]
             blurred = blurred.to(args.device)
             original = original.to(args.device)

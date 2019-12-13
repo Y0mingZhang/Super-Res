@@ -12,12 +12,50 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
+from torch.utils.data import Dataset
 import torchvision
 from torchvision import transforms
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import os
 import shutil
+import itertools
+
+def get_dataset_mean_std(dataset):
+    np_dataset = np.stack([img for img, _ in dataset])
+    mean = [np_dataset[:,i].mean() for i in range(3)] 
+    std = [np_dataset[:,i].std() for i in range(3)]
+
+    norm = transforms.Normalize(mean, std, inplace=True)
+    
+    return np_dataset
+
+class Norm_Dataset_Wrapper(Dataset):
+    def __init__(self, dataset_lr, dataset_hr):
+        self.lr = []
+        self.hr = []
+        tt = transforms.ToTensor()
+
+        np_dataset = np.stack([img for img, _ in dataset_lr])
+        mean = [np_dataset[:,i].mean() for i in range(3)] 
+        std = [np_dataset[:,i].std() for i in range(3)]
+        norm = transforms.Normalize(mean=mean, std=std, inplace=True)
+        for img in np_dataset:
+            self.lr.append(torch.FloatTensor(norm(tt(img.transpose(1,2,0)))))
+
+        np_dataset = np.stack([img for img, _ in dataset_hr])
+        mean = [np_dataset[:,i].mean() for i in range(3)] 
+        std = [np_dataset[:,i].std() for i in range(3)]
+        norm = transforms.Normalize(mean=mean, std=std, inplace=True)
+        for img in np_dataset:
+            self.hr.append(torch.FloatTensor(norm(tt(img.transpose(1,2,0)))))
+    
+    def __getitem__(self, i):
+        return self.lr[i], self.hr[i]
+
+    def __len__(self):
+        return len(self.lr)
+
 
 def get_loaders(args):
     # Use 4x downsampling to approximate blur
@@ -63,13 +101,12 @@ def get_loaders(args):
                 Squeeze,
         ])
 
-        # transforms.Normalize([0.2859], [0.3530]) # Normalize to zero mean and unit variance
+        data_train = Norm_Dataset_Wrapper(torchvision.datasets.VOCSegmentation('.', download=True, image_set='train', transform=interpol), 
+                        torchvision.datasets.VOCSegmentation('.', download=True, image_set='train', transform=og_transform))
 
-        data_train = list(zip(torchvision.datasets.VOCSegmentation('.', download=True, image_set='train', transform=interpol, target_transform=interpol), 
-                        torchvision.datasets.VOCSegmentation('.', download=True, image_set='train', transform=og_transform, target_transform=og_transform)))
+        data_test = Norm_Dataset_Wrapper(torchvision.datasets.VOCSegmentation('.', download=True, image_set='val', transform=interpol), 
+                        torchvision.datasets.VOCSegmentation('.', download=True, image_set='val', transform=og_transform))
 
-        data_test = list(zip(torchvision.datasets.VOCSegmentation('.', download=True, image_set='val', transform=interpol, target_transform=interpol), 
-                        torchvision.datasets.VOCSegmentation('.', download=True, image_set='val', transform=og_transform, target_transform=og_transform)))
 
         torch.save(data_train, os.path.join(cache_dir, 'train_dataset.bin'))
         torch.save(data_test, os.path.join(cache_dir, 'test_dataset.bin'))

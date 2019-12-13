@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 import torch
 import numpy as np
 import time
+
+from math import log10
+
 def set_visible_gpus(args):
     import os
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
@@ -10,7 +13,8 @@ def set_visible_gpus(args):
     
 
 def tensor_to_img(data):
-    return np.transpose(data.detach().cpu().numpy(), (1, 2, 0))
+    img = np.transpose(data.detach().cpu().numpy(), (1, 2, 0))
+    return (img-img.min())/img.max()
 
 def plot_image_comparisons(blurred, generated, original):
     
@@ -22,6 +26,25 @@ def plot_image_comparisons(blurred, generated, original):
     axarr[2].imshow(tensor_to_img(original))
     axarr[2].set_title('Original')
     plt.show()
+
+def PSNR(generated, original):
+    if original.max() > 2.0:
+        print('Assume [0-255] range of pixel intensity')
+        amax = 255.0
+    else:
+        print('Assume [0.0-1.0] range of pixel intensity')
+        amax = 1.0
+    
+    
+
+    generated = np.clip(generated, amin=0.0, amax=amax)
+    original = np.clip(generated, amin=0.0, amax=amax)
+    # Compute MSE
+    mse = ((generated - original) ** 2).sum()
+    
+    return 20 * np.log10(amin) - 10 * np.log10(mse)
+
+
 
 
 def save_model(d, g, step, args):
