@@ -53,7 +53,7 @@ def train(d, g, trainloader, args):
             real_label = label_fast.fill_(1)
             output = d(fake_data).squeeze()
 
-            g_error = gan_criterion(output, real_label) * 1e-2
+            g_error = gan_criterion(output, real_label) * 1e-1
             pix_error = pix_criterion(fake_data, original)
             if args.n_gpus > 1:
                 g_error = g_error.mean()
