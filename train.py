@@ -15,9 +15,10 @@ def train(d, g, trainloader, args):
     global_step = 0
     global_epoch = 0
     for epoch in tqdm(range(args.num_epochs)):
-        if global_epoch == 10:
-            args.d_lr /= 10
-            args.g_lr /= 10
+        if args.reduce_lr:
+            if global_epoch == 10:
+                args.d_lr /= 10
+                args.g_lr /= 10
 
         for blurred, original in trainloader:
             bs = blurred.shape[0]
@@ -29,7 +30,7 @@ def train(d, g, trainloader, args):
             """ Update D Network """
             d.zero_grad()
             output = d(original).squeeze()
-            real_label = label_fast.fill_(1)
+            real_label = label_fast.fill_(1 - arg.label_smoothing)
             d_error_real = gan_criterion(output, real_label)
             if args.n_gpus > 1:
                 d_error_real = d_error_real.mean()
@@ -38,7 +39,7 @@ def train(d, g, trainloader, args):
 
             fake_data = g(blurred)
             output = d(fake_data.detach()).squeeze()
-            fake_label = label_fast.fill_(0)
+            fake_label = label_fast.fill_(arg.label_smoothing)
             d_error_fake = gan_criterion(output, fake_label)
             if args.n_gpus > 1:
                 d_error_fake = d_error_fake.mean()
@@ -52,7 +53,7 @@ def train(d, g, trainloader, args):
             real_label = label_fast.fill_(1)
             output = d(fake_data).squeeze()
 
-            g_error = gan_criterion(output, real_label) * 1e-3
+            g_error = gan_criterion(output, real_label) * 1e-2
             pix_error = pix_criterion(fake_data, original)
             if args.n_gpus > 1:
                 g_error = g_error.mean()
