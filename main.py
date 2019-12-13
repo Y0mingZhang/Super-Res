@@ -11,7 +11,7 @@ args = {
     'g_lr' : 1e-4,
     'num_epochs' : 15,
     'num_resblocks' : 16,
-    'overwrite_cache' : True,
+    'overwrite_cache' : False,
     'cache_dir' : 'data_cache/',
     'batch_size' : 64,
     'print_every' : 4,

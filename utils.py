@@ -14,8 +14,9 @@ def set_visible_gpus(args):
 
 def tensor_to_img(data):
     img = np.transpose(data.detach().cpu().numpy(), (1, 2, 0))
-    return (img-img.min())/img.max()
-
+    img -= img.min()
+    img /= img.max()
+    return img
 def plot_image_comparisons(blurred, generated, original):
     
     _, axarr = plt.subplots(1,3)
