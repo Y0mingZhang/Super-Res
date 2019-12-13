@@ -30,7 +30,7 @@ def train(d, g, trainloader, args):
             """ Update D Network """
             d.zero_grad()
             output = d(original).squeeze()
-            real_label = label_fast.fill_(1 - arg.label_smoothing)
+            real_label = label_fast.fill_(1 - args.label_smoothing)
             d_error_real = gan_criterion(output, real_label)
             if args.n_gpus > 1:
                 d_error_real = d_error_real.mean()
@@ -39,7 +39,7 @@ def train(d, g, trainloader, args):
 
             fake_data = g(blurred)
             output = d(fake_data.detach()).squeeze()
-            fake_label = label_fast.fill_(arg.label_smoothing)
+            fake_label = label_fast.fill_(args.label_smoothing)
             d_error_fake = gan_criterion(output, fake_label)
             if args.n_gpus > 1:
                 d_error_fake = d_error_fake.mean()
