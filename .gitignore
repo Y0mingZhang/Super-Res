@@ -3,3 +3,4 @@ VOC*
 *cache*
 *ipynb
 .DS_Store
+_py*

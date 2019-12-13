@@ -52,4 +52,5 @@ def save_model(d, g, step, args):
     if not os.path.isdir(args.model_dir):
         os.mkdir(args.model_dir)
     torch.save(g, os.path.join(args.model_dir, 'G@{}.bin'.format(step)))
-    torch.save(d, os.path.join(args.model_dir, 'D@{}.bin'.format(step)))
+    # Realized no need to save D's
+    #torch.save(d, os.path.join(args.model_dir, 'D@{}.bin'.format(step)))

@@ -113,7 +113,7 @@ def get_loaders(args):
 
         
     train_loader = torch.utils.data.DataLoader(data_train, batch_size=args.batch_size, shuffle=True)
-    test_loader = torch.utils.data.DataLoader(data_test[:1000], batch_size=args.batch_size, shuffle=True)
-    val_loader = torch.utils.data.DataLoader(data_test[1000:], batch_size=args.batch_size, shuffle=True)
+    test_loader = torch.utils.data.DataLoader(list(zip(data_test.lr[:1000], data_test.hr[:1000])), batch_size=args.batch_size, shuffle=True)
+    val_loader = torch.utils.data.DataLoader(list(zip(data_test.lr[1000:], data_test.hr[1000:])), batch_size=args.batch_size, shuffle=True)
     
     return train_loader, test_loader, val_loader
